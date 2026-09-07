@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+
+# Data (raw/processed data is regenerated via scripts, not committed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Large outputs (keep small sample outputs used by Power BI docs, ignore bulk)
+outputs/*.parquet
+
+# Power BI local cache files
+powerbi/*.pbix.bak
+*.pbix.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

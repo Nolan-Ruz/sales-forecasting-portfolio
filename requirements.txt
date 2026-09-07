@@ -1,0 +1,29 @@
+# Core
+pandas>=2.2
+numpy>=1.26
+python-dateutil>=2.9
+
+# Forecasting
+prophet>=1.1.5
+holidays>=0.47
+
+# Stats / simulation
+scipy>=1.13
+statsmodels>=0.14
+scikit-learn>=1.4
+
+# Viz (for notebook exploration; Power BI is the polished output layer)
+matplotlib>=3.8
+seaborn>=0.13
+plotly>=5.20
+
+# Notebook tooling
+jupyterlab>=4.1
+ipykernel>=6.29
+nbformat>=5.10
+
+# Data acquisition
+kaggle>=1.6
+
+# I/O
+pyarrow>=15.0
