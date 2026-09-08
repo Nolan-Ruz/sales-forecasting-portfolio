@@ -67,6 +67,40 @@ pip install -r requirements.txt
 Then follow [`data/README.md`](data/README.md) to fetch the dataset, and run the
 notebooks in order (01 → 04).
 
+### Troubleshooting: notebooks suddenly can't import anything
+
+`.venv` on Windows is a thin shim — it points at wherever the base Python
+interpreter it was created from lives (e.g.
+`C:\Users\<you>\AppData\Local\Programs\Python\Python312\`) rather than bundling
+its own copy. If that base install is later removed or replaced (e.g. by
+upgrading Python, or an installer cleanup), `.venv\Scripts\python.exe` stops
+working even though all the packages are still sitting in
+`.venv\Lib\site-packages`. Symptoms: `ModuleNotFoundError` for packages you
+know are installed, or a notebook kernel that resolves to some other, bare
+Python install with nothing installed in it.
+
+Fix:
+
+```powershell
+py -0p                      # list installed Python versions + paths
+```
+
+- If the same Python version the venv was built with (check `.venv\pyvenv.cfg`
+  → `version =`) is available again, `.venv` should just start working — no
+  reinstall needed.
+- If that version is gone for good, reinstall the same major.minor version
+  (e.g. via `winget install --id Python.Python.3.12 --version 3.12.10`) rather
+  than rebuilding against whatever's newest — this reuses everything already
+  installed in `.venv` (including Prophet, which is slow to rebuild) instead
+  of a full `pip install -r requirements.txt` from scratch.
+- As a last resort, rebuild from scratch: `python -m venv .venv --clear && pip
+  install -r requirements.txt`.
+
+Also make sure the notebook's Jupyter kernel is actually the project's venv
+(look for **"Python (sales-forecasting-portfolio .venv)"** in the kernel
+picker), not a random system Python — that mismatch causes the same symptoms
+even when `.venv` itself is fine.
+
 ## Roadmap
 
 - [ ] **01 — EDA**: seasonality decomposition, per-SKU demand variability, stationarity checks
