@@ -59,5 +59,3 @@ table Historic_Variability
 				in
 				  #"Changed column type"
 
-	changedProperty = Name
-
