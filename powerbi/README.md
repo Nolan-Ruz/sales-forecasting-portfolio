@@ -1,128 +1,62 @@
 # Power BI Dashboard
 
-Built on the CSV/Parquet tables exported by the notebooks into `outputs/`.
-Nothing in Power BI re-derives the forecast or simulation — it's a
-presentation layer over pre-computed model output, same as a real BI setup
-sitting downstream of a scheduled model-training pipeline.
-
-## Data model
-
-Star schema: one fact table per notebook output, three shared dimension
-tables. Site and product are modeled as two separate dimensions rather than
-one combined `store`/`item` dimension — lets any page slice by site or
-product independently instead of only as a pair.
-
-**Dimension tables** (built in Power Query / DAX, not exported from Python):
-- `Date` — calendar table (`CALENDAR(MIN(Fact_Forecast[ds]), MAX(...))` in
-  DAX), needed for any date-intelligence measures (MTD, YoY, etc.). Marked as
-  a date table in Model view.
-- `Dim_Site` — distinct `store` values.
-- `Dim_Product` — distinct `item` values.
-
-**Fact tables** (one-to-one with an `outputs/*.csv`):
-
-| Table | Source | Grain | Key columns |
-|---|---|---|---|
-| `Fact_Forecast` | `outputs/forecast_all_series.csv` | date × store × item | `ds`, `yhat`, `yhat_lower`, `yhat_upper`, `actual`, `store`, `item` |
-| `Fact_SafetyStockCurve` | `outputs/safety_stock_curve.csv` | store × item × service_level | `service_level`, `safety_stock`, `store`, `item` |
-| `Fact_Reorder` | `outputs/reorder_recommendations.csv` | store × item (snapshot) | `on_hand`, `reorder_point`, `min_level`, `max_level`, `eoq`, `needs_reorder`, `suggested_order_qty` |
-| `Fact_Inventory_Sim` | `outputs/inventory_simulation.csv` | store × item (point estimate) | `expected_lead_time_demand`, `safety_stock`, `p95_lead_time_demand`, `store`, `item` |
-| `Historic_Variability` | `outputs/series_variability.csv` | store × item | `mean`, `std`, `cv`, `store`, `item` |
-
-Relationships: `Dim_Site[store]` (1) → each fact table's `store` column
-(many), and `Dim_Product[item]` (1) → each fact table's `item` column (many)
-— every fact table gets both relationships. `Date[Date]` (1) →
-`Fact_Forecast[ds]` (many) only (the other facts are point-in-time snapshots,
-not date-indexed).
-
-## Measures
-
-DAX measures live on the fact table they summarize:
-
-**`Fact_Forecast`**
-- `MAE`, `MAPE` — average error over the historical (`actual` non-blank)
-  portion of the table.
-- `'Pct Within Interval'` — share of historical rows where `actual` fell
-  inside `[yhat_lower, yhat_upper]`, a check that the uncertainty band is
-  honest, not just that the point forecast is close.
-- `yhat_lower_sum`, `yhat_upper_sum` — `SUM()` wrappers around the raw bound
-  columns so they aggregate correctly when the Forecast Accuracy page is
-  sliced down to one SKU.
-- `'Shaded Area'` = `yhat_upper_sum - yhat_lower_sum` — the band width, used
-  as the second series in the stacked-area layer described below.
-
-**`Fact_Reorder`**
-- `'# of Products Needing Reordering'` = `COUNTROWS(Fact_Reorder)` filtered
-  to `needs_reorder = TRUE`.
-- `'Total Reorder Quantity'` = `SUM(suggested_order_qty)` filtered to
-  `needs_reorder = TRUE`.
+The presentation layer for the forecasting/inventory pipeline: three pages that turn
+the model output in `outputs/` into an accuracy check, a risk view, and an actionable
+reorder list. Power BI doesn't re-derive anything here — all forecasting, simulation,
+and reorder-logic calculations happen upstream in the notebooks; the dashboard reads
+and visualizes their results.
 
 ## Pages
 
-**1. Forecast Accuracy**
-- Line chart: `actual`, `yhat`, `yhat_lower_sum`, `yhat_upper_sum` as four
-  series against `Date`, layered with a Stacked Area chart
-  (`yhat_lower_sum` + `'Shaded Area'`, base series transparent) sent to the
-  back for the shaded uncertainty band — see `## Measures` above. This is
-  the "does the tuned model actually track reality" page.
-- KPI tiles: `MAE`, `MAPE`, `'Pct Within Interval'`.
-- Site slicer (`Dim_Site[store]`) + product slicer (`Dim_Product[item]`) +
-  date range slicer (`Date[Date]`).
+**1. Forecast Accuracy** — does the tuned Prophet model actually track real demand?
+A line chart plots actual sales against the forecast, with the forecast's uncertainty
+range shown as a shaded band, filterable by site, product, and date range. Three KPI
+tiles summarize accuracy at a glance: **MAE** and **MAPE** (average forecast error
+against known history), and the **percentage of actuals that fell inside the
+forecast's uncertainty interval** — a check that the model's confidence bands are
+honest, not just that the point forecast is close.
 
-**2. Inventory Risk**
-- Area chart: `service_level` (axis) vs. `Sum(safety_stock)` from
-  `Fact_SafetyStockCurve` — the interactive version of the notebook 03
-  tradeoff curve. Currently aggregated across all SKUs with no slicer on
-  this page (unlike pages 1 and 3); add a service-level or product slicer
-  here if per-SKU drill-down turns out to matter.
-- Scatter: `Fact_Inventory_Sim[safety_stock]` (y) vs. `Historic_Variability[cv]`
-  (x), with both `Dim_Site[store]` and `Dim_Product[item]` on the Details
-  well so each store/item combination renders as its own point — the
-  sanity-check chart from notebook 03, made interactive, to make the "riskier
-  SKUs get more buffer" story visible.
+**2. Inventory Risk** — what does it cost to protect against demand uncertainty?
+A tradeoff curve shows how much safety stock is required as the target service level
+(fill rate) increases from 80% to 99% — the classic cost-of-certainty curve inventory
+planners use to set policy. A companion scatter plot checks that the safety-stock
+recommendations make sense: SKUs with more historically volatile demand should need
+proportionally more buffer stock, and the chart confirms that relationship holds
+across all 500 store/item combinations.
 
-**3. Reorder Queue**
-- Table/matrix from `Fact_Reorder` filtered to `needs_reorder = TRUE`, sorted
-  by `suggested_order_qty` descending — the actionable "what do I order today"
-  view.
-- Line and clustered column chart: `on_hand` as the column, `min_level`/
-  `max_level` as line series with zero stroke width and markers shown (per-
-  category threshold ticks rather than a connected line) — the notebook 04
-  chart, made interactive. Axis is `item` + `store` together (one bar per
-  SKU); filtered to Top N by `suggested_order_qty`, since showing all 500
-  SKUs at once is unreadable.
-- Site slicer + product slicer.
-- Card tiles: `'# of Products Needing Reordering'`, `'Total Reorder Quantity'`.
+**3. Reorder Queue** — what needs to be ordered right now? A sortable table lists
+every SKU currently below its reorder point, ranked by suggested order quantity, next
+to a chart comparing current on-hand inventory against each SKU's min/max reorder
+thresholds. Headline tiles show the total count of at-risk SKUs and the total
+recommended order quantity across all of them — the two numbers a replenishment
+planner would actually check first.
 
-## Building it
+## Data model
 
-The model/report live as a **Power BI Project (`.pbip`)** — `sales_forecasting.pbip`
-plus the `sales_forecasting.Report/` and `sales_forecasting.SemanticModel/`
-folders next to it. Unlike a `.pbix`, these are plain text (TMDL for the
-model — tables, measures, relationships; JSON for the report layout), so
-diffs are readable in git/GitHub instead of being an opaque binary. The
-`.pbi/` subfolder inside each (cache, local settings) is gitignored —
-machine-local, regenerated on open, not part of the model.
+Star schema: one fact table per pipeline stage, with site and product modeled as two
+independent dimensions (rather than one combined dimension) so any page can filter by
+site or product on its own.
 
-1. Run notebooks 01→04 to populate `outputs/`.
-2. Open `powerbi/sales_forecasting.pbip` in Power BI Desktop (requires the
-   "Power BI Project (.pbip) save option" preview feature enabled once:
-   File → Options and settings → Options → Preview features).
-3. Get Data → Text/CSV → point at each `outputs/*.csv` if adding a new
-   source, or Refresh if the tables already exist.
-4. Model already has `Date`, `Dim_Site`, `Dim_Product` and the relationships
-   described above; extend as needed in Model view.
-5. Build/edit the three pages above.
-6. Publish to the Power BI service and drop the shareable link + a few
-   screenshots/a short GIF walkthrough here in `powerbi/` for the GitHub repo
-   (a live report doesn't render on GitHub, so screenshots are what a visitor
-   actually sees without opening Power BI Desktop).
+| Table | Grain | What it holds |
+|---|---|---|
+| `Fact_Forecast` | date × store × item | Prophet's forecast, uncertainty bounds, and actuals where known |
+| `Fact_SafetyStockCurve` | store × item × service level | Safety stock required at each target service level |
+| `Fact_Inventory_Sim` | store × item | Point-estimate safety stock and expected lead-time demand |
+| `Fact_Reorder` | store × item | Reorder point, min/max levels, and order recommendations |
+| `Historic_Variability` | store × item | Historical demand variability (coefficient of variation) per SKU |
+| `Dim_Site`, `Dim_Product`, `Date` | — | Shared dimensions for slicing and date intelligence |
 
-## Refresh story ("auto" in "auto min/max")
+## Why a `.pbip` instead of a `.pbix`
 
-In a real deployment, notebooks 02–04 would run on a schedule (e.g. nightly),
-overwriting `outputs/*.csv`, and the report would point at those paths with
-a scheduled refresh (Power BI service, or a gateway if the files sit on a
-local machine rather than cloud storage) — the Reorder Queue page updates
-itself as new forecasts land, which is the actual point of "auto" min/max
-versus a static, manually-set policy.
+The project is committed as a **Power BI Project**, which stores the semantic model
+(tables, relationships, DAX measures) and report layout as plain text rather than a
+single binary file. That means the data model and measures are readable directly on
+GitHub, and changes to the dashboard show up as real diffs instead of an opaque blob.
+
+## The "auto" in auto min/max
+
+In a live deployment, the forecasting and inventory notebooks would run on a nightly
+schedule, refreshing `outputs/` with the latest forecasts and reorder recommendations,
+and the dashboard would pick up the change automatically on its next scheduled
+refresh — the Reorder Queue updates itself as new demand data arrives, rather than
+relying on someone manually recalculating reorder points.

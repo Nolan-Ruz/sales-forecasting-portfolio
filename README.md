@@ -14,7 +14,8 @@ min/max reorder point logic** — surfaced in a **Power BI** dashboard.
 
 Forecasting sales is only half the problem — the operational payoff is turning a
 forecast (with its uncertainty) into an inventory decision: *how much safety stock
-do we need, and when do we reorder?* This project walks the full chain:
+do we need, and when do we reorder?* This project walks the full chain from raw
+sales data to an actionable, self-updating reorder queue:
 
 ```
 raw daily sales  →  tuned Prophet forecast (+ uncertainty intervals)
@@ -22,6 +23,9 @@ raw daily sales  →  tuned Prophet forecast (+ uncertainty intervals)
                  →  auto min/max reorder point + reorder qty per SKU
                  →  Power BI dashboard (forecast accuracy, inventory risk, reorder queue)
 ```
+
+The pipeline, the inventory/reorder logic, and the dashboard are all complete and
+run end to end on the dataset below.
 
 ## Dataset
 
@@ -49,14 +53,14 @@ sales-forecasting-portfolio/
 │   ├── prophet_pipeline.py    # fit/tune/cross-validate Prophet, forecast export
 │   ├── inventory_sim.py       # Monte Carlo simulation over forecast distribution
 │   └── reorder_logic.py       # min/max/reorder-point calculations
-├── outputs/                   # tidy CSV/Parquet tables feeding Power BI
-├── powerbi/                   # .pbip project (Report/ + SemanticModel/) + screenshots/GIF
+├── outputs/                   # tidy CSV tables feeding Power BI
+├── powerbi/                   # Power BI project + dashboard screenshots
 ├── docs/                      # architecture notes, write-up
 ├── requirements.txt
 └── README.md
 ```
 
-## Setup
+## Running it
 
 ```powershell
 python -m venv .venv
@@ -65,61 +69,17 @@ pip install -r requirements.txt
 ```
 
 Then follow [`data/README.md`](data/README.md) to fetch the dataset, and run the
-notebooks in order (01 → 04).
+notebooks in order (01 → 04). Each notebook writes its output to `outputs/`, which
+the Power BI dashboard reads from — see [`powerbi/README.md`](powerbi/README.md).
 
-### Troubleshooting: notebooks suddenly can't import anything
-
-`.venv` on Windows is a thin shim — it points at wherever the base Python
-interpreter it was created from lives (e.g.
-`C:\Users\<you>\AppData\Local\Programs\Python\Python312\`) rather than bundling
-its own copy. If that base install is later removed or replaced (e.g. by
-upgrading Python, or an installer cleanup), `.venv\Scripts\python.exe` stops
-working even though all the packages are still sitting in
-`.venv\Lib\site-packages`. Symptoms: `ModuleNotFoundError` for packages you
-know are installed, or a notebook kernel that resolves to some other, bare
-Python install with nothing installed in it.
-
-Fix:
-
-```powershell
-py -0p                      # list installed Python versions + paths
-```
-
-- If the same Python version the venv was built with (check `.venv\pyvenv.cfg`
-  → `version =`) is available again, `.venv` should just start working — no
-  reinstall needed.
-- If that version is gone for good, reinstall the same major.minor version
-  (e.g. via `winget install --id Python.Python.3.12 --version 3.12.10`) rather
-  than rebuilding against whatever's newest — this reuses everything already
-  installed in `.venv` (including Prophet, which is slow to rebuild) instead
-  of a full `pip install -r requirements.txt` from scratch.
-- As a last resort, rebuild from scratch: `python -m venv .venv --clear && pip
-  install -r requirements.txt`.
-
-Also make sure the notebook's Jupyter kernel is actually the project's venv
-(look for **"Python (sales-forecasting-portfolio .venv)"** in the kernel
-picker), not a random system Python — that mismatch causes the same symptoms
-even when `.venv` itself is fine.
-
-## Roadmap
-
-- [x] **01 — EDA**: seasonality decomposition, per-SKU demand variability, stationarity checks
-- [x] **02 — Prophet tuning**: baseline model, holiday regressors, `cross_validation`/
-      `performance_metrics` grid search over `changepoint_prior_scale` /
-      `seasonality_prior_scale`, backtested MAPE/MAE
-- [x] **03 — Inventory simulation**: Monte Carlo demand draws from forecast uncertainty,
-      safety stock vs. service-level tradeoff curves
-- [x] **04 — Auto min/max reorder logic**: reorder point, min/max levels, reorder qty
-      recommendation table, recalculated per forecast refresh
-- [x] **Power BI dashboard**: Forecast Accuracy / Inventory Risk / Reorder Queue pages
-      built on `outputs/` tables
-- [ ] **Polish**: architecture diagram, dashboard screenshots/GIF, write-up in `docs/`
+If notebook imports break after a Python reinstall or upgrade, recreate the
+environment rather than debugging the old one: `python -m venv .venv --clear && pip
+install -r requirements.txt`, and confirm the notebook's Jupyter kernel points at
+this project's venv rather than a system Python.
 
 ## Power BI dashboard
 
-See [`powerbi/README.md`](powerbi/README.md) for the data model and page-by-page
-breakdown. The dashboard is committed as a Power BI Project (`.pbip`) rather than a
-`.pbix` — the model (TMDL) and report layout (JSON) are plain text, so changes show up
-as real diffs instead of an opaque binary. A live report still doesn't render on GitHub
-though, so screenshots/a short GIF walkthrough belong in `powerbi/` for anyone browsing
-the repo without Power BI Desktop — not yet added (see Roadmap: Polish, above).
+The dashboard is delivered as a **Power BI Project (`.pbip`)** rather than a `.pbix`
+— the semantic model and report layout are stored as plain text, so the data model
+and DAX measures are readable directly in the repo rather than locked inside a
+binary file. See [`powerbi/README.md`](powerbi/README.md) for what each page shows.
