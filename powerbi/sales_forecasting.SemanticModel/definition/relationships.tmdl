@@ -35,10 +35,10 @@ relationship 4ce689db-c994-00b5-3748-fc99751deaf0
 	toColumn: Date.Date
 
 relationship AutoDetected_6fd046e7-fb89-41be-8e4c-ed171620741c
-	fromColumn: Historic_Variablity.store
+	fromColumn: Historic_Variability.store
 	toColumn: Dim_Site.store
 
 relationship AutoDetected_e60e00c0-043e-4cd7-883c-4b1fbafbe6d8
-	fromColumn: Historic_Variablity.item
+	fromColumn: Historic_Variability.item
 	toColumn: Dim_Product.item
 

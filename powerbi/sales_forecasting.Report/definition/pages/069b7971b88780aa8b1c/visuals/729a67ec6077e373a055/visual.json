@@ -56,7 +56,7 @@
                     "Column": {
                       "Expression": {
                         "SourceRef": {
-                          "Entity": "Historic_Variablity"
+                          "Entity": "Historic_Variability"
                         }
                       },
                       "Property": "cv"
@@ -65,7 +65,7 @@
                   "Function": 0
                 }
               },
-              "queryRef": "Sum(Historic_Variablity.cv)",
+              "queryRef": "Sum(Historic_Variability.cv)",
               "nativeQueryRef": "Sum of cv",
               "active": true
             }

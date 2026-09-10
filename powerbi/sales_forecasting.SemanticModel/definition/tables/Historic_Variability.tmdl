@@ -1,4 +1,4 @@
-table Historic_Variablity
+table Historic_Variability
 	lineageTag: 543ab97e-b78b-43af-955f-944182081b8a
 
 	column store
@@ -49,7 +49,7 @@ table Historic_Variablity
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	partition Historic_Variablity = m
+	partition Historic_Variability = m
 		mode: import
 		source =
 				let

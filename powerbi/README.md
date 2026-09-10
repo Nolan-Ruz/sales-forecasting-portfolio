@@ -27,11 +27,7 @@ product independently instead of only as a pair.
 | `Fact_SafetyStockCurve` | `outputs/safety_stock_curve.csv` | store × item × service_level | `service_level`, `safety_stock`, `store`, `item` |
 | `Fact_Reorder` | `outputs/reorder_recommendations.csv` | store × item (snapshot) | `on_hand`, `reorder_point`, `min_level`, `max_level`, `eoq`, `needs_reorder`, `suggested_order_qty` |
 | `Fact_Inventory_Sim` | `outputs/inventory_simulation.csv` | store × item (point estimate) | `expected_lead_time_demand`, `safety_stock`, `p95_lead_time_demand`, `store`, `item` |
-| `Historic_Variablity`¹ | `outputs/series_variability.csv` | store × item | `mean`, `std`, `cv`, `store`, `item` |
-
-¹ Named `Historic_Variablity` in the model (typo — should be
-`Historic_Variability`); documented as-built, worth a rename in Power BI
-Desktop (Model view → right-click table → Rename) before this goes public.
+| `Historic_Variability` | `outputs/series_variability.csv` | store × item | `mean`, `std`, `cv`, `store`, `item` |
 
 Relationships: `Dim_Site[store]` (1) → each fact table's `store` column
 (many), and `Dim_Product[item]` (1) → each fact table's `item` column (many)
@@ -53,7 +49,7 @@ not date-indexed).
 - Line/area chart: safety stock vs. service level from `Fact_SafetyStockCurve`,
   with a service-level slicer (values 0.80–0.99) — this is the interactive
   version of the notebook 03 tradeoff chart.
-- Scatter: `Fact_Inventory_Sim[safety_stock]` (y) vs. `Historic_Variablity[cv]`
+- Scatter: `Fact_Inventory_Sim[safety_stock]` (y) vs. `Historic_Variability[cv]`
   (x), with both `Dim_Site[store]` and `Dim_Product[item]` on the Details
   well so each store/item combination renders as its own point — the
   sanity-check chart from notebook 03, made interactive, to make the "riskier

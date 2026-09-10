@@ -4047,7 +4047,7 @@ cultureInfo en-CA
 			    "historic_variablity": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity"
+			          "ConceptualEntity": "Historic_Variability"
 			        }
 			      },
 			      "State": "Generated",
@@ -4058,7 +4058,7 @@ cultureInfo en-CA
 			          }
 			        },
 			        {
-			          "Historic_Variablity": {
+			          "Historic_Variability": {
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.99
@@ -4069,7 +4069,7 @@ cultureInfo en-CA
 			    "historic_variablity.store": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity",
+			          "ConceptualEntity": "Historic_Variability",
 			          "ConceptualProperty": "store"
 			        }
 			      },
@@ -4188,7 +4188,7 @@ cultureInfo en-CA
 			    "historic_variablity.item": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity",
+			          "ConceptualEntity": "Historic_Variability",
 			          "ConceptualProperty": "item"
 			        }
 			      },
@@ -4267,7 +4267,7 @@ cultureInfo en-CA
 			    "historic_variablity.mean": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity",
+			          "ConceptualEntity": "Historic_Variability",
 			          "ConceptualProperty": "mean"
 			        }
 			      },
@@ -4303,7 +4303,7 @@ cultureInfo en-CA
 			    "historic_variablity.std": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity",
+			          "ConceptualEntity": "Historic_Variability",
 			          "ConceptualProperty": "std"
 			        }
 			      },
@@ -4319,7 +4319,7 @@ cultureInfo en-CA
 			    "historic_variablity.cv": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Historic_Variablity",
+			          "ConceptualEntity": "Historic_Variability",
 			          "ConceptualProperty": "cv"
 			        }
 			      },
@@ -4336,7 +4336,7 @@ cultureInfo en-CA
 			  "Relationships": {
 			    "historic_variablity_has_dim_site": {
 			      "Binding": {
-			        "ConceptualEntity": "Historic_Variablity"
+			        "ConceptualEntity": "Historic_Variability"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -4803,7 +4803,7 @@ cultureInfo en-CA
 			    },
 			    "historic_variablity_has_cv": {
 			      "Binding": {
-			        "ConceptualEntity": "Historic_Variablity"
+			        "ConceptualEntity": "Historic_Variability"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -4836,7 +4836,7 @@ cultureInfo en-CA
 			    },
 			    "historic_variablity_has_std": {
 			      "Binding": {
-			        "ConceptualEntity": "Historic_Variablity"
+			        "ConceptualEntity": "Historic_Variability"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -4869,7 +4869,7 @@ cultureInfo en-CA
 			    },
 			    "historic_variablity_has_mean": {
 			      "Binding": {
-			        "ConceptualEntity": "Historic_Variablity"
+			        "ConceptualEntity": "Historic_Variability"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -6023,7 +6023,7 @@ cultureInfo en-CA
 			    },
 			    "historic_variablity_has_dim_product": {
 			      "Binding": {
-			        "ConceptualEntity": "Historic_Variablity"
+			        "ConceptualEntity": "Historic_Variability"
 			      },
 			      "State": "Generated",
 			      "Roles": {
