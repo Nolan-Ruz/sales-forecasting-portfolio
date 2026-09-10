@@ -24,10 +24,12 @@ Star schema: one fact table per notebook output, two shared dimension tables.
 | `Fact_Forecast` | `outputs/forecast_all_series.csv` | date × store × item | `ds`, `yhat`, `yhat_lower`, `yhat_upper`, `actual`, `store`, `item` |
 | `Fact_SafetyStockCurve` | `outputs/safety_stock_curve.csv` | store × item × service_level | `service_level`, `safety_stock`, `store`, `item` |
 | `Fact_Reorder` | `outputs/reorder_recommendations.csv` | store × item (snapshot) | `on_hand`, `reorder_point`, `min_level`, `max_level`, `eoq`, `needs_reorder`, `suggested_order_qty` |
+| `Fact_InventorySim` | `outputs/inventory_simulation.csv` | store × item (point estimate) | `expected_lead_time_demand`, `safety_stock`, `p95_lead_time_demand`, `store`, `item` |
+| `Historical_Variability` | `outputs/series_variability.csv` | store × item | `mean`, `std`, `cv`, `store`, `item` |
 
 Relationships: `Dim_Product[store,item]` (composite key, or a concatenated
 `store_item` surrogate key built in Power Query) 1-to-many into each fact
-table. `Dim_Date[date]` 1-to-many into `Fact_Forecast[ds]` only (the other two
+table. `Dim_Date[date]` 1-to-many into `Fact_Forecast[ds]` only (the other
 facts are point-in-time snapshots, not date-indexed).
 
 ## Pages
@@ -44,8 +46,10 @@ facts are point-in-time snapshots, not date-indexed).
 - Line/area chart: safety stock vs. service level from `Fact_SafetyStockCurve`,
   with a service-level slicer (values 0.80–0.99) — this is the interactive
   version of the notebook 03 tradeoff chart.
-- Scatter: safety stock vs. historical demand variability (sanity-check chart
-  from notebook 03), to make the "riskier SKUs get more buffer" story visible.
+- Scatter: `Fact_InventorySim[safety_stock]` (y) vs. `Historical_Variability[cv]`
+  (x), one point per SKU via `Dim_Product` on the Details well — the
+  sanity-check chart from notebook 03, made interactive, to make the "riskier
+  SKUs get more buffer" story visible.
 
 **3. Reorder Queue**
 - Table/matrix from `Fact_Reorder` filtered to `needs_reorder = TRUE`, sorted
