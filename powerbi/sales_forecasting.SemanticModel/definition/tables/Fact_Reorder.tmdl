@@ -1,0 +1,174 @@
+table Fact_Reorder
+	lineageTag: 03fba38a-2af3-4016-87a6-77c42f9bfc2f
+
+	measure '# of Products Needing Reordering' = ```
+			
+			CALCULATE( 
+			    COUNTROWS(Fact_Reorder), 
+			    Fact_Reorder[needs_reorder] = TRUE()
+			    )
+			```
+		formatString: 0
+		lineageTag: 75ae4489-2a6a-4131-b354-4ab6da19b2e8
+
+	measure 'Total Reorder Quantity' = ```
+			
+			CALCULATE( 
+			    SUM(Fact_Reorder[suggested_order_qty]), 
+			    Fact_Reorder[needs_reorder] = TRUE()
+			    )
+			```
+		lineageTag: 3a3a5eba-4837-413c-94ae-251e78647563
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: f2d35493-81c0-4fde-9533-4491208f8257
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = User
+
+	column item
+		dataType: int64
+		formatString: 0
+		lineageTag: a78ab413-9ee7-48fc-8a3f-840366b02eae
+		summarizeBy: none
+		sourceColumn: item
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 39ad7a68-c8a7-4671-a3b6-10085d79e2d5
+		summarizeBy: sum
+		sourceColumn: lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column target_service_level
+		dataType: double
+		lineageTag: 05b24ee3-6655-460c-86da-9d7602fe4525
+		summarizeBy: sum
+		sourceColumn: target_service_level
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column expected_lead_time_demand
+		dataType: double
+		lineageTag: 0ec80a64-83da-4ac1-801a-b1434abbc733
+		summarizeBy: sum
+		sourceColumn: expected_lead_time_demand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock
+		dataType: double
+		lineageTag: c7e7ba60-7f96-401b-ab18-13ff1a74e80f
+		summarizeBy: sum
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column p95_lead_time_demand
+		dataType: double
+		lineageTag: 482c86cd-2e7a-4fba-92af-6cea467d295d
+		summarizeBy: sum
+		sourceColumn: p95_lead_time_demand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column on_hand
+		dataType: double
+		lineageTag: 1dc26d08-53e3-42db-b94c-8401b02a3d7a
+		summarizeBy: sum
+		sourceColumn: on_hand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column reorder_point
+		dataType: double
+		lineageTag: 8924c590-d0f3-444b-902d-ad8ec0ff44b1
+		summarizeBy: sum
+		sourceColumn: reorder_point
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column eoq
+		dataType: double
+		lineageTag: 95324723-90d6-47fc-8de0-13847bc9a760
+		summarizeBy: sum
+		sourceColumn: eoq
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column min_level
+		dataType: double
+		lineageTag: 228c88f1-d69e-44cc-9de5-f64b7d29fc21
+		summarizeBy: sum
+		sourceColumn: min_level
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column max_level
+		dataType: double
+		lineageTag: 5731a705-6721-48fc-964c-27b0dbf71a67
+		summarizeBy: sum
+		sourceColumn: max_level
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column needs_reorder
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4166bbd1-dad0-4d3a-9c0c-eb859b200430
+		summarizeBy: none
+		sourceColumn: needs_reorder
+
+		annotation SummarizationSetBy = Automatic
+
+	column suggested_order_qty
+		dataType: double
+		lineageTag: 1bcc954c-9385-401a-9a0a-246b5fa55495
+		summarizeBy: sum
+		sourceColumn: suggested_order_qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Fact_Reorder = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\reorder_recommendations.csv"), [Delimiter = ",", Columns = 14, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"store", Int64.Type}, {"item", Int64.Type}, {"lead_time_days", Int64.Type}, {"target_service_level", type number}, {"expected_lead_time_demand", type number}, {"safety_stock", type number}, {"p95_lead_time_demand", type number}, {"on_hand", type number}, {"reorder_point", type number}, {"eoq", type number}, {"min_level", type number}, {"max_level", type number}, {"needs_reorder", type logical}, {"suggested_order_qty", type number}}, "en-US")
+				in
+				  #"Changed column type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

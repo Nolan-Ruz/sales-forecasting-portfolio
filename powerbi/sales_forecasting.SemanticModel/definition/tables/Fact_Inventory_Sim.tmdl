@@ -1,0 +1,84 @@
+table Fact_Inventory_Sim
+	lineageTag: f7449532-4c40-435c-9bd6-39c4271683e8
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: 15d70ec4-5489-41cc-abdc-11a57456a18c
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = Automatic
+
+	column item
+		dataType: int64
+		formatString: 0
+		lineageTag: 1dc97ca2-97cf-403b-a2c0-5628c040f1f4
+		summarizeBy: none
+		sourceColumn: item
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_days
+		dataType: int64
+		formatString: 0
+		lineageTag: f69b0d38-4748-4537-899b-57c61b1ac1a3
+		summarizeBy: sum
+		sourceColumn: lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column target_service_level
+		dataType: double
+		lineageTag: 5de7c1dd-fb7f-45c1-9178-afa81826dbbf
+		summarizeBy: sum
+		sourceColumn: target_service_level
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column expected_lead_time_demand
+		dataType: double
+		lineageTag: f8baca39-54ab-4f4b-b616-c941a09917e2
+		summarizeBy: sum
+		sourceColumn: expected_lead_time_demand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock
+		dataType: double
+		lineageTag: 908c715d-1c9d-4621-8e11-6afd293fd915
+		summarizeBy: sum
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column p95_lead_time_demand
+		dataType: double
+		lineageTag: 98dc5b6b-2605-4ef5-aff9-f30eb814d9ec
+		summarizeBy: sum
+		sourceColumn: p95_lead_time_demand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Fact_Inventory_Sim = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\inventory_simulation.csv"), [Delimiter = ",", Columns = 7, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"store", Int64.Type}, {"item", Int64.Type}, {"lead_time_days", Int64.Type}, {"target_service_level", type number}, {"expected_lead_time_demand", type number}, {"safety_stock", type number}, {"p95_lead_time_demand", type number}}, "en-US")
+				in
+				  #"Changed column type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

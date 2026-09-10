@@ -1,0 +1,44 @@
+relationship AutoDetected_b9709574-ba7a-4582-ad4f-f6c973d4f8dd
+	fromColumn: Fact_Forecast.store
+	toColumn: Dim_Site.store
+
+relationship AutoDetected_d2a61386-1424-4481-8a9d-ba1ce7d7fa18
+	fromColumn: Fact_Inventory_Sim.store
+	toColumn: Dim_Site.store
+
+relationship AutoDetected_4c59021c-87d3-48ae-9725-8d4e5306d9cd
+	fromColumn: Fact_Reorder.store
+	toColumn: Dim_Site.store
+
+relationship AutoDetected_7bdd933f-d227-4dd6-940f-c0795ca3d96f
+	fromColumn: Fact_SafetyStockCurve.store
+	toColumn: Dim_Site.store
+
+relationship AutoDetected_f0633b89-e5d9-45c3-a808-b9e5b98528a1
+	fromColumn: Fact_Forecast.item
+	toColumn: Dim_Product.item
+
+relationship AutoDetected_aa8edd04-d87e-4dcd-a9da-ac00c8240c83
+	fromColumn: Fact_Inventory_Sim.item
+	toColumn: Dim_Product.item
+
+relationship AutoDetected_ecaef037-e79d-4f2d-9821-128d15604079
+	fromColumn: Fact_Reorder.item
+	toColumn: Dim_Product.item
+
+relationship AutoDetected_5d82221b-605d-480a-8f95-8018e243dfa3
+	fromColumn: Fact_SafetyStockCurve.item
+	toColumn: Dim_Product.item
+
+relationship 4ce689db-c994-00b5-3748-fc99751deaf0
+	fromColumn: Fact_Forecast.ds
+	toColumn: Date.Date
+
+relationship AutoDetected_6fd046e7-fb89-41be-8e4c-ed171620741c
+	fromColumn: Historic_Variablity.store
+	toColumn: Dim_Site.store
+
+relationship AutoDetected_e60e00c0-043e-4cd7-883c-4b1fbafbe6d8
+	fromColumn: Historic_Variablity.item
+	toColumn: Dim_Product.item
+

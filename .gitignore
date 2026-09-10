@@ -19,6 +19,13 @@ outputs/*.parquet
 powerbi/*.pbix.bak
 *.pbix.tmp
 
+# Power BI Project (.pbip) local-only artifacts — the model/report definition
+# (TMDL, .pbir, .pbism, JSON) is source and gets committed; everything under
+# .pbi/ (cache, editor state, local settings) is machine-local and
+# regenerated on open, not part of the model.
+**/.pbi/
+*.abf
+
 # OS / editor
 .DS_Store
 Thumbs.db

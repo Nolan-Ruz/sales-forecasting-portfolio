@@ -1,0 +1,18 @@
+table Date
+	lineageTag: fe85ba93-6e07-430c-bef4-794bd0fb1eed
+
+	column Date
+		formatString: General Date
+		lineageTag: 1e2961e4-83ae-4a27-86ab-da76181c168b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = calculated
+		mode: import
+		source = CALENDAR(MIN(Fact_Forecast[ds]), MAX(Fact_Forecast[ds]))
+
+	annotation PBI_Id = 0e7204d545cc4e6a963a21643fd49dfe
+

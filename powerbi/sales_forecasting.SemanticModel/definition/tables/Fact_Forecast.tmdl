@@ -1,0 +1,123 @@
+table Fact_Forecast
+	lineageTag: 41f1f966-83ac-4d15-8366-cebca987af20
+
+	measure 'Shaded Area' = [yhat_upper_sum] - [yhat_lower_sum]
+		lineageTag: 833ffed0-b28d-4c05-bc8f-d20998f867e5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure yhat_lower_sum = SUM(Fact_Forecast[yhat_lower])
+		lineageTag: 563b7a67-c40d-4a99-b239-32334ffbbc48
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure yhat_upper_sum = ```
+			SUM(Fact_Forecast[yhat_upper]) 
+			```
+		lineageTag: e8900f04-6711-4220-935e-bc4ddfceea3c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure MAE = AVERAGEX(FILTER(Fact_Forecast, NOT ISBLANK(Fact_Forecast[actual])), ABS(Fact_Forecast[actual] - Fact_Forecast[yhat]))
+		formatString: 0.00
+		lineageTag: 089e7fda-aee7-4588-91f9-71e9aaea4eea
+
+	measure MAPE = AVERAGEX(FILTER(Fact_Forecast, NOT ISBLANK(Fact_Forecast[actual]) && Fact_Forecast[actual] <> 0), ABS(Fact_Forecast[actual] - Fact_Forecast[yhat]) / Fact_Forecast[actual])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 00f90c7d-22ca-46c0-8dd7-1f747629d88d
+
+	measure 'Pct Within Interval' =
+			
+			VAR HistoricalRows = FILTER(Fact_Forecast, NOT ISBLANK(Fact_Forecast[actual]))
+			RETURN
+			DIVIDE(
+			    COUNTROWS(FILTER(HistoricalRows, Fact_Forecast[actual] >= Fact_Forecast[yhat_lower] && Fact_Forecast[actual] <= Fact_Forecast[yhat_upper])),
+			    COUNTROWS(HistoricalRows)
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2d003448-fba3-4e8c-8b1b-84c75f63f2aa
+
+	column ds
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c7663b06-01c9-4400-871b-4ea02e5107a1
+		summarizeBy: none
+		sourceColumn: ds
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column yhat
+		dataType: double
+		lineageTag: 15dd4e45-bfe8-4e6c-95d1-fabebf8737bb
+		summarizeBy: sum
+		sourceColumn: yhat
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column yhat_lower
+		dataType: double
+		lineageTag: 023d8887-372c-4047-9316-9241a541286b
+		summarizeBy: sum
+		sourceColumn: yhat_lower
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column yhat_upper
+		dataType: double
+		lineageTag: 394800b1-2bcb-4890-a0ce-5f00fd714d78
+		summarizeBy: sum
+		sourceColumn: yhat_upper
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: 36dcdd84-2d47-425d-9828-7b5cb871b15d
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = Automatic
+
+	column item
+		dataType: int64
+		formatString: 0
+		lineageTag: ac26d11c-0bab-45c5-bde2-ec11f0fc96f8
+		summarizeBy: none
+		sourceColumn: item
+
+		annotation SummarizationSetBy = Automatic
+
+	column actual
+		dataType: int64
+		formatString: 0
+		lineageTag: 30a93267-f0f2-47f0-95c6-3e29ce184d50
+		summarizeBy: sum
+		sourceColumn: actual
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_Forecast = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\forecast_all_series.csv"), [Delimiter = ",", Columns = 7, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"ds", type date}, {"yhat", type number}, {"yhat_lower", type number}, {"yhat_upper", type number}, {"store", Int64.Type}, {"item", Int64.Type}, {"actual", Int64.Type}}, "en-US")
+				in
+				  #"Changed column type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

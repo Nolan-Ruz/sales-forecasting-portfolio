@@ -1,0 +1,63 @@
+table Historic_Variablity
+	lineageTag: 543ab97e-b78b-43af-955f-944182081b8a
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: baf06a8b-0f5c-4aba-9318-b7c86cc4d314
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = Automatic
+
+	column item
+		dataType: int64
+		formatString: 0
+		lineageTag: 3a319c6b-37d2-45db-9598-6f4d4027b589
+		summarizeBy: none
+		sourceColumn: item
+
+		annotation SummarizationSetBy = Automatic
+
+	column mean
+		dataType: double
+		lineageTag: 96d9825d-2eb1-4709-9fe3-b578407cb5ff
+		summarizeBy: sum
+		sourceColumn: mean
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column std
+		dataType: double
+		lineageTag: e5ba4a73-6ca1-4fa7-b4be-da6b67490350
+		summarizeBy: sum
+		sourceColumn: std
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cv
+		dataType: double
+		lineageTag: 55237daf-dc8e-4804-b9c8-01b0bf01f045
+		summarizeBy: sum
+		sourceColumn: cv
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Historic_Variablity = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\series_variability.csv"), [Delimiter = ",", Columns = 5, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"store", Int64.Type}, {"item", Int64.Type}, {"mean", type number}, {"std", type number}, {"cv", type number}}, "en-US")
+				in
+				  #"Changed column type"
+
+	changedProperty = Name
+

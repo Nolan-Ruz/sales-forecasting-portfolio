@@ -1,0 +1,55 @@
+table Fact_SafetyStockCurve
+	lineageTag: 02b1751f-6569-420b-8c3c-bcad9223ec8a
+
+	column service_level
+		dataType: double
+		lineageTag: aa017c69-26b5-4352-8bc5-5bab29314f17
+		summarizeBy: sum
+		sourceColumn: service_level
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock
+		dataType: double
+		lineageTag: f82e72b3-e10d-4d5f-9fd5-48adecc9d85a
+		summarizeBy: sum
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: a4fc0d8a-7d6d-4924-83b1-9bfb9439b31f
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = Automatic
+
+	column item
+		dataType: int64
+		formatString: 0
+		lineageTag: 9834a882-5694-4b33-8612-42dcf17dac24
+		summarizeBy: none
+		sourceColumn: item
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Fact_SafetyStockCurve = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\safety_stock_curve.csv"), [Delimiter = ",", Columns = 4, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"service_level", type number}, {"safety_stock", type number}, {"store", Int64.Type}, {"item", Int64.Type}}, "en-US")
+				in
+				  #"Changed column type"
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

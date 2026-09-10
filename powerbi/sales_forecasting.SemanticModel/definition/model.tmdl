@@ -1,0 +1,26 @@
+model Model
+	culture: en-CA
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-CA
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Fact_Forecast","Fact_Inventory_Sim","Fact_Reorder","Fact_SafetyStockCurve","Dim_Product","Dim_Site","Historic_Variablity"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Fact_Forecast
+ref table Fact_Inventory_Sim
+ref table Fact_Reorder
+ref table Fact_SafetyStockCurve
+ref table Date
+ref table Dim_Product
+ref table Dim_Site
+ref table Historic_Variablity
+
+ref cultureInfo en-CA
+

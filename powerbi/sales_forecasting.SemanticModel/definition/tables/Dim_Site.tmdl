@@ -1,0 +1,28 @@
+table Dim_Site
+	lineageTag: feebe951-e677-4598-8292-cc0ff075780b
+
+	column store
+		dataType: int64
+		formatString: 0
+		lineageTag: 37d4eddb-6997-46e7-ae0c-e7f72612c798
+		summarizeBy: none
+		sourceColumn: store
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Dim_Site = m
+		mode: import
+		source =
+				let
+				  Source = Csv.Document(File.Contents("C:\Users\ntruz\source\repos\sales-forecasting-portfolio\outputs\reorder_recommendations.csv"), [Delimiter = ",", Columns = 14, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"store", Int64.Type}, {"item", Int64.Type}, {"lead_time_days", Int64.Type}, {"target_service_level", type number}, {"expected_lead_time_demand", type number}, {"safety_stock", type number}, {"p95_lead_time_demand", type number}, {"on_hand", type number}, {"reorder_point", type number}, {"eoq", type number}, {"min_level", type number}, {"max_level", type number}, {"needs_reorder", type logical}, {"suggested_order_qty", type number}}, "en-US"),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed column type",{"item", "lead_time_days", "target_service_level", "expected_lead_time_demand", "safety_stock", "p95_lead_time_demand", "on_hand", "reorder_point", "eoq", "min_level", "max_level", "needs_reorder", "suggested_order_qty"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns")
+				in
+				  #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
