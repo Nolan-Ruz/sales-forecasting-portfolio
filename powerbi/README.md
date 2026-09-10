@@ -35,20 +35,46 @@ Relationships: `Dim_Site[store]` (1) → each fact table's `store` column
 `Fact_Forecast[ds]` (many) only (the other facts are point-in-time snapshots,
 not date-indexed).
 
+## Measures
+
+DAX measures live on the fact table they summarize:
+
+**`Fact_Forecast`**
+- `MAE`, `MAPE` — average error over the historical (`actual` non-blank)
+  portion of the table.
+- `'Pct Within Interval'` — share of historical rows where `actual` fell
+  inside `[yhat_lower, yhat_upper]`, a check that the uncertainty band is
+  honest, not just that the point forecast is close.
+- `yhat_lower_sum`, `yhat_upper_sum` — `SUM()` wrappers around the raw bound
+  columns so they aggregate correctly when the Forecast Accuracy page is
+  sliced down to one SKU.
+- `'Shaded Area'` = `yhat_upper_sum - yhat_lower_sum` — the band width, used
+  as the second series in the stacked-area layer described below.
+
+**`Fact_Reorder`**
+- `'# of Products Needing Reordering'` = `COUNTROWS(Fact_Reorder)` filtered
+  to `needs_reorder = TRUE`.
+- `'Total Reorder Quantity'` = `SUM(suggested_order_qty)` filtered to
+  `needs_reorder = TRUE`.
+
 ## Pages
 
 **1. Forecast Accuracy**
-- Line chart: `actual` vs `yhat` with `yhat_lower`/`yhat_upper` as a shaded
-  band, sliced by `Dim_Site`/`Dim_Product`. This is the "does the tuned model
-  actually track reality" page.
-- KPI tiles: MAPE / MAE computed as DAX measures over the historical (actual
-  non-blank) portion of `Fact_Forecast`.
-- Site slicer + product slicer + date range slicer.
+- Line chart: `actual`, `yhat`, `yhat_lower_sum`, `yhat_upper_sum` as four
+  series against `Date`, layered with a Stacked Area chart
+  (`yhat_lower_sum` + `'Shaded Area'`, base series transparent) sent to the
+  back for the shaded uncertainty band — see `## Measures` above. This is
+  the "does the tuned model actually track reality" page.
+- KPI tiles: `MAE`, `MAPE`, `'Pct Within Interval'`.
+- Site slicer (`Dim_Site[store]`) + product slicer (`Dim_Product[item]`) +
+  date range slicer (`Date[Date]`).
 
 **2. Inventory Risk**
-- Line/area chart: safety stock vs. service level from `Fact_SafetyStockCurve`,
-  with a service-level slicer (values 0.80–0.99) — this is the interactive
-  version of the notebook 03 tradeoff chart.
+- Area chart: `service_level` (axis) vs. `Sum(safety_stock)` from
+  `Fact_SafetyStockCurve` — the interactive version of the notebook 03
+  tradeoff curve. Currently aggregated across all SKUs with no slicer on
+  this page (unlike pages 1 and 3); add a service-level or product slicer
+  here if per-SKU drill-down turns out to matter.
 - Scatter: `Fact_Inventory_Sim[safety_stock]` (y) vs. `Historic_Variability[cv]`
   (x), with both `Dim_Site[store]` and `Dim_Product[item]` on the Details
   well so each store/item combination renders as its own point — the
@@ -60,12 +86,13 @@ not date-indexed).
   by `suggested_order_qty` descending — the actionable "what do I order today"
   view.
 - Line and clustered column chart: `on_hand` as the column, `min_level`/
-  `max_level` as zero-stroke-width line series with markers (per-category
-  threshold ticks rather than a connected line) — the notebook 04 chart, made
-  interactive. Filtered to `needs_reorder = TRUE` and Top N by
-  `suggested_order_qty`, since showing all 500 SKUs at once is unreadable.
-- Card tiles: `# of Products Needing Reordering` (`COUNTROWS(Fact_Reorder)`
-  filtered to `needs_reorder = TRUE`), total suggested order quantity.
+  `max_level` as line series with zero stroke width and markers shown (per-
+  category threshold ticks rather than a connected line) — the notebook 04
+  chart, made interactive. Axis is `item` + `store` together (one bar per
+  SKU); filtered to Top N by `suggested_order_qty`, since showing all 500
+  SKUs at once is unreadable.
+- Site slicer + product slicer.
+- Card tiles: `'# of Products Needing Reordering'`, `'Total Reorder Quantity'`.
 
 ## Building it
 

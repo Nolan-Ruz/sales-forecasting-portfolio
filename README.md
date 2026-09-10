@@ -103,22 +103,23 @@ even when `.venv` itself is fine.
 
 ## Roadmap
 
-- [ ] **01 — EDA**: seasonality decomposition, per-SKU demand variability, stationarity checks
-- [ ] **02 — Prophet tuning**: baseline model, holiday regressors, `cross_validation`/
+- [x] **01 — EDA**: seasonality decomposition, per-SKU demand variability, stationarity checks
+- [x] **02 — Prophet tuning**: baseline model, holiday regressors, `cross_validation`/
       `performance_metrics` grid search over `changepoint_prior_scale` /
       `seasonality_prior_scale`, backtested MAPE/MAE
-- [ ] **03 — Inventory simulation**: Monte Carlo demand draws from forecast uncertainty,
+- [x] **03 — Inventory simulation**: Monte Carlo demand draws from forecast uncertainty,
       safety stock vs. service-level tradeoff curves
-- [ ] **04 — Auto min/max reorder logic**: reorder point, min/max levels, reorder qty
+- [x] **04 — Auto min/max reorder logic**: reorder point, min/max levels, reorder qty
       recommendation table, recalculated per forecast refresh
-- [ ] **Power BI dashboard**: Forecast Accuracy / Inventory Risk / Reorder Queue pages
+- [x] **Power BI dashboard**: Forecast Accuracy / Inventory Risk / Reorder Queue pages
       built on `outputs/` tables
 - [ ] **Polish**: architecture diagram, dashboard screenshots/GIF, write-up in `docs/`
 
 ## Power BI dashboard
 
-See [`powerbi/README.md`](powerbi/README.md) for the data model and page wireframes.
-The dashboard is committed as a Power BI Project (`.pbip`) rather than a `.pbix` — the
-model (TMDL) and report layout (JSON) are plain text, so changes show up as real diffs
-instead of an opaque binary. Since a live report still doesn't render on GitHub, the repo
-also includes exported screenshots/GIF of the dashboard alongside the project files.
+See [`powerbi/README.md`](powerbi/README.md) for the data model and page-by-page
+breakdown. The dashboard is committed as a Power BI Project (`.pbip`) rather than a
+`.pbix` — the model (TMDL) and report layout (JSON) are plain text, so changes show up
+as real diffs instead of an opaque binary. A live report still doesn't render on GitHub
+though, so screenshots/a short GIF walkthrough belong in `powerbi/` for anyone browsing
+the repo without Power BI Desktop — not yet added (see Roadmap: Polish, above).
