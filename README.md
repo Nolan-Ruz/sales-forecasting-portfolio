@@ -50,7 +50,7 @@ sales-forecasting-portfolio/
 │   ├── inventory_sim.py       # Monte Carlo simulation over forecast distribution
 │   └── reorder_logic.py       # min/max/reorder-point calculations
 ├── outputs/                   # tidy CSV/Parquet tables feeding Power BI
-├── powerbi/                   # .pbix file + dashboard screenshots/GIF
+├── powerbi/                   # .pbip project (Report/ + SemanticModel/) + screenshots/GIF
 ├── docs/                      # architecture notes, write-up
 ├── requirements.txt
 └── README.md
@@ -118,5 +118,7 @@ even when `.venv` itself is fine.
 ## Power BI dashboard
 
 See [`powerbi/README.md`](powerbi/README.md) for the data model and page wireframes.
-Since `.pbix` files don't render on GitHub, the repo includes exported screenshots/GIF
-of the live dashboard alongside the file itself.
+The dashboard is committed as a Power BI Project (`.pbip`) rather than a `.pbix` — the
+model (TMDL) and report layout (JSON) are plain text, so changes show up as real diffs
+instead of an opaque binary. Since a live report still doesn't render on GitHub, the repo
+also includes exported screenshots/GIF of the dashboard alongside the project files.
