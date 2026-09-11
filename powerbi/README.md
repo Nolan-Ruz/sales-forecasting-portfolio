@@ -8,6 +8,8 @@ and visualizes their results.
 
 ## Pages
 
+![Forecast Accuracy page](sf_forecast_accuracy.png)
+
 **1. Forecast Accuracy** — does the tuned Prophet model actually track real demand?
 A line chart plots actual sales against the forecast, with the forecast's uncertainty
 range shown as a shaded band, filterable by site, product, and date range. Three KPI
@@ -16,6 +18,8 @@ against known history), and the **percentage of actuals that fell inside the
 forecast's uncertainty interval** — a check that the model's confidence bands are
 honest, not just that the point forecast is close.
 
+![Inventory Risk page](sf_Inventory_risk.png)
+
 **2. Inventory Risk** — what does it cost to protect against demand uncertainty?
 A tradeoff curve shows how much safety stock is required as the target service level
 (fill rate) increases from 80% to 99% — the classic cost-of-certainty curve inventory
@@ -23,6 +27,8 @@ planners use to set policy. A companion scatter plot checks that the safety-stoc
 recommendations make sense: SKUs with more historically volatile demand should need
 proportionally more buffer stock, and the chart confirms that relationship holds
 across all 500 store/item combinations.
+
+![Reorder Queue page](sf_reorder_queue.png)
 
 **3. Reorder Queue** — what needs to be ordered right now? A sortable table lists
 every SKU currently below its reorder point, ranked by suggested order quantity, next

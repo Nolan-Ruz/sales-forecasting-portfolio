@@ -83,3 +83,7 @@ The dashboard is delivered as a **Power BI Project (`.pbip`)** rather than a `.p
 — the semantic model and report layout are stored as plain text, so the data model
 and DAX measures are readable directly in the repo rather than locked inside a
 binary file. See [`powerbi/README.md`](powerbi/README.md) for what each page shows.
+
+| Forecast Accuracy | Inventory Risk | Reorder Queue |
+|---|---|---|
+| ![Forecast Accuracy](powerbi/sf_forecast_accuracy.png) | ![Inventory Risk](powerbi/sf_Inventory_risk.png) | ![Reorder Queue](powerbi/sf_reorder_queue.png) |
